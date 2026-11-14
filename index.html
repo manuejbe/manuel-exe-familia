@@ -50,7 +50,7 @@ button,input,textarea,select{font-family:var(--font);font-size:14px}
 /* ---------- WINDOWS ---------- */
 .win{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:min(94vw,460px);max-height:calc(100% - 16px);display:none;flex-direction:column;background:var(--gray);padding:3px;
   box-shadow:inset -1px -1px #000,inset 1px 1px var(--light),inset -2px -2px var(--dark),inset 2px 2px #fff,4px 4px 0 rgba(0,0,0,.25);z-index:10}
-.win.open{display:flex;animation:pop .14s ease-out}
+.win.open{display:flex;animation:pop .4s ease-out}
 @keyframes pop{from{transform:translate(-50%,-50%) scale(.6);opacity:.3}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
 .win.shake{animation:shake .35s}
 @keyframes shake{0%,100%{transform:translate(-50%,-50%)}20%{transform:translate(calc(-50% - 8px),-50%)}40%{transform:translate(calc(-50% + 8px),-50%)}60%{transform:translate(calc(-50% - 5px),-50%)}80%{transform:translate(calc(-50% + 5px),-50%)}}
@@ -122,9 +122,6 @@ legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
 .links .btn{min-width:0;padding:7px 10px;white-space:nowrap}
 .links{gap:6px!important;flex-wrap:nowrap!important}
 .hidden{display:none!important}
-.spin{display:flex;align-items:center;gap:6px}
-.spin .btn{min-width:38px;padding:6px 0;font-weight:bold;font-size:16px}
-.spin input{width:54px!important;text-align:center;font-weight:bold;font-size:16px}
 
 /* sending */
 .copy-anim{display:flex;align-items:center;justify-content:space-between;font-size:30px;padding:8px 6px 12px;position:relative}
@@ -233,15 +230,6 @@ legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
           <label class="chk"><input type="radio" name="viene" value="No"> No puedo 😢</label>
         </fieldset>
 
-        <fieldset id="fs-cant" class="hidden">
-          <legend>¿Con cuántos venís? (contándote a vos)</legend>
-          <div class="spin">
-            <button type="button" class="btn" id="cant-minus" aria-label="Uno menos">−</button>
-            <input type="text" id="f-cant" inputmode="numeric" value="1" aria-label="Cantidad de personas" maxlength="2">
-            <button type="button" class="btn" id="cant-plus" aria-label="Uno más">+</button>
-            <span id="cant-txt" class="hint" style="margin:0">Solo vos</span>
-          </div>
-        </fieldset>
 
         <fieldset id="fs-food">
           <legend>Restricciones alimentarias del grupo</legend>
@@ -314,7 +302,7 @@ legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
           <div><small>FECHA</small><b>SÁB 19 DIC</b></div>
           <div><small>EMBARQUE</small><b>18:00</b></div>
           <div><small>VUELO</small><b>MNL 1912</b></div>
-          <div><small>PASAJEROS</small><b id="pass-cant">1</b></div>
+          <div><small>ASIENTO</small><b>Libre</b></div>
           <div><small>CLASE</small><b>FAMILIA</b></div>
           <div><small>EQUIPAJE</small><b>Abrazos</b></div>
           <div class="full"><small>MENÚ ESPECIAL</small><b id="pass-food">—</b></div>
@@ -443,7 +431,7 @@ function openWin(id, title){
   $("#task-btn").textContent = t.length > 28 ? t.slice(0,27)+"…" : t;
 }
 function closeWin(id){ $("#"+id).classList.remove("open"); }
-function swap(from, to){ closeWin(from); setTimeout(()=>openWin(to), 120); }
+function swap(from, to){ closeWin(from); setTimeout(()=>openWin(to), 600); }
 function shake(w){ w.classList.remove("shake"); void w.offsetWidth; w.classList.add("shake"); sndError(); }
 
 $$("[data-shake]").forEach(b=>b.addEventListener("click",e=>{
@@ -512,9 +500,9 @@ function runBoot(){
   const out=$("#boot-text"); let i=0;
   (function next(){
     if(booted) return;
-    if(i>=BOOT.length){ setTimeout(endBoot,1800); return; }
+    if(i>=BOOT.length){ setTimeout(endBoot,2600); return; }
     out.innerHTML += BOOT[i][0] + BOOT[i][1] + "\n"; i++;
-    setTimeout(next, i<3?550:850);
+    setTimeout(next, i<3?750:1150);
   })();
 }
 function endBoot(){
@@ -591,21 +579,26 @@ function animateBar(n, to, ms){
   });
 }
 const sleep = ms => new Promise(r=>setTimeout(r,ms));
+// escribe el texto letra por letra
+async function typeIn(el, txt, cps=28){
+  el.textContent="";
+  for(const ch of txt){ el.textContent+=ch; await sleep(1000/cps); }
+}
 let installed=false;
 async function runInstall(){
   if(installed) return; installed=true;
-  $("#p1n").textContent="Compilando... (esto tardó un par de años)";
-  await animateBar(1,100,3200);
-  $("#p1n").textContent="✔ Instalado. Ahora sí, oficialmente nadie sabe qué hago.";
+  await typeIn($("#p1n"),"Compilando... (esto tardó un par de años)");
+  await animateBar(1,100,4200);
+  await typeIn($("#p1n"),"✔ Instalado. Ahora sí, oficialmente nadie sabe qué hago.");
   beep([784],.06);
-  $("#p2n").textContent="Aplicando parche de cumpleaños...";
-  await sleep(2200);
-  await animateBar(2,100,2800);
-  $("#p2n").textContent="✔ Versión 23.0. Notas: +1 de experiencia.";
+  await typeIn($("#p2n"),"Aplicando parche de cumpleaños...");
+  await sleep(3200);
+  await animateBar(2,100,3800);
+  await typeIn($("#p2n"),"✔ Versión 23.0. Notas: +1 de experiencia.");
   beep([880],.06);
-  $("#p3n").textContent="Empaquetando 23 años en 3 valijas...";
-  await sleep(2200);
-  await animateBar(3,99,3200);
+  await typeIn($("#p3n"),"Empaquetando 23 años en 3 valijas...");
+  await sleep(3200);
+  await animateBar(3,99,4200);
   $("#p3n").innerHTML="⏸ <b>Detenido en 99%.</b> Pendiente: despedirse de vos.";
   sndError();
   $("#btn-install-next").disabled=false;
@@ -637,19 +630,8 @@ $$("input[name=rest]").forEach(c=>c.addEventListener("change",()=>{
 $$("input[name=viene]").forEach(r=>r.addEventListener("change",()=>{
   const no = r.value==="No" && r.checked;
   $("#fs-food").classList.toggle("hidden", no);
-  $("#fs-cant").classList.toggle("hidden", no);
 }));
 
-// cantidad de personas (1 a 20)
-function getCant(){ const n=parseInt($("#f-cant").value,10); return isNaN(n)?1:Math.min(20,Math.max(1,n)); }
-function setCant(n){
-  n=Math.min(20,Math.max(1,n)); $("#f-cant").value=n;
-  $("#cant-txt").textContent = n===1 ? "Solo vos" : n>=8 ? "¡Vienen con toda la tribu!" : "Vos + "+(n-1);
-}
-$("#cant-minus").onclick=()=>{ setCant(getCant()-1); beep([520],.04); };
-$("#cant-plus").onclick=()=>{ setCant(getCant()+1); beep([780],.04); };
-$("#f-cant").addEventListener("input",()=>{ $("#f-cant").value=$("#f-cant").value.replace(/\D/g,""); });
-$("#f-cant").addEventListener("change",()=>setCant(getCant()));
 
 function getData(){
   const viene = ($$("input[name=viene]").find(r=>r.checked)||{}).value || "";
@@ -660,7 +642,6 @@ function getData(){
   return {
     nombre: $("#f-nombre").value.trim(),
     viene,
-    cantidad: viene==="No" ? "0" : String(getCant()),
     restriccion: viene==="No" ? "" : restStr,
     mensaje: $("#f-msg").value.trim(),
   };
@@ -683,9 +664,8 @@ $("#btn-no-change").onclick=()=>{
   closeWin("w-confirm-no");
   $("input[name=viene][value='Sí']").checked=true;
   $("#fs-food").classList.remove("hidden");
-  $("#fs-cant").classList.remove("hidden");
   current="w-form"; sndTada();
-  toast("Excelente decisión","Sabía que ibas a recapacitar. Completá cuántos vienen y lo de la comida, y firmá.");
+  toast("Excelente decisión","Sabía que ibas a recapacitar. Completá lo de la comida y firmá.");
 };
 $("#btn-no-ok").onclick=()=>{ closeWin("w-confirm-no"); send(getData()); };
 
@@ -728,7 +708,6 @@ async function send(d){
    ================================================================= */
 function fillPass(d){
   $("#pass-name").textContent = d.nombre.toUpperCase();
-  $("#pass-cant").textContent = d.cantidad || "1";
   const food = (d.restriccion||"").replace(/^Ninguna$/,"");
   $("#pass-food").textContent = food ? food : "Estándar (comemos de todo)";
   $("#pass-addr").textContent = CONFIG.DIRECCION;
