@@ -293,7 +293,7 @@ legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
     <div class="body">
       <div class="copy-anim"><span>📂</span><span class="paper">📄</span><span>🗄️</span></div>
       <p style="margin:0 0 6px" id="send-txt">Enviando tus datos al servidor central...</p>
-      <div class="bar"><i id="send-bar" style="transition:width 1.6s linear"></i></div>
+      <div class="bar"><i id="send-bar" style="transition:width 2.6s linear"></i></div>
       <p style="margin:8px 0 0;font-size:12px;color:#404040">Tiempo restante: 3 segundos (estimación de Windows: 47 minutos)</p>
     </div>
   </section>
@@ -455,7 +455,7 @@ $$("[data-close]").forEach(b=>b.addEventListener("click",e=>closeWin(e.target.cl
 
 /* ---------- toast ---------- */
 let toastTimer;
-function toast(t,m,ms=4200){
+function toast(t,m,ms=7500){
   $("#toast-t").textContent=t; $("#toast-m").textContent=m;
   $("#toast").style.display="block";
   clearTimeout(toastTimer); toastTimer=setTimeout(hideToast,ms);
@@ -512,9 +512,9 @@ function runBoot(){
   const out=$("#boot-text"); let i=0;
   (function next(){
     if(booted) return;
-    if(i>=BOOT.length){ setTimeout(endBoot,650); return; }
+    if(i>=BOOT.length){ setTimeout(endBoot,1800); return; }
     out.innerHTML += BOOT[i][0] + BOOT[i][1] + "\n"; i++;
-    setTimeout(next, i<3?260:360);
+    setTimeout(next, i<3?550:850);
   })();
 }
 function endBoot(){
@@ -590,19 +590,22 @@ function animateBar(n, to, ms){
     })(t0);
   });
 }
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
 let installed=false;
 async function runInstall(){
   if(installed) return; installed=true;
   $("#p1n").textContent="Compilando... (esto tardó un par de años)";
-  await animateBar(1,100,1700);
+  await animateBar(1,100,3200);
   $("#p1n").textContent="✔ Instalado. Ahora sí, oficialmente nadie sabe qué hago.";
   beep([784],.06);
   $("#p2n").textContent="Aplicando parche de cumpleaños...";
-  await animateBar(2,100,1200);
+  await sleep(2200);
+  await animateBar(2,100,2800);
   $("#p2n").textContent="✔ Versión 23.0. Notas: +1 de experiencia.";
   beep([880],.06);
   $("#p3n").textContent="Empaquetando 23 años en 2 valijas...";
-  await animateBar(3,99,1800);
+  await sleep(2200);
+  await animateBar(3,99,3200);
   $("#p3n").innerHTML="⏸ <b>Detenido en 99%.</b> Pendiente: despedirse de vos.";
   sndError();
   $("#btn-install-next").disabled=false;
@@ -695,7 +698,7 @@ async function send(d){
   requestAnimationFrame(()=>requestAnimationFrame(()=>$("#send-bar").style.width="100%"));
   $("#btn-submit").disabled=true;
 
-  const minWait = new Promise(r=>setTimeout(r,1800));
+  const minWait = new Promise(r=>setTimeout(r,2800));
   let ok=true;
   try{
     if(CONFIG.SCRIPT_URL){
