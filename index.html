@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>MANUEL.EXE — Cierre de sesión familiar</title>
+<meta name="description" content="Error crítico: MANUEL.EXE se muda a ISR. Sábado 19/12, 18:00.">
+<meta property="og:title" content="⚠ MANUEL.EXE — Error crítico">
+<meta property="og:description" content="MANUEL.EXE se prepara para migrar al servidor ISR. Se requiere la presencia de toda la familia. Sábado 19/12, 18:00.">
+<style>
+/* ============================================================
+   CONFIG VISUAL — paleta Windows 95
+   ============================================================ */
+:root{
+  --teal:#008080; --gray:#c0c0c0; --navy:#000080; --dark:#808080; --light:#dfdfdf;
+  --font: "Pixelated MS Sans Serif","MS Sans Serif","Microsoft Sans Serif",Tahoma,Verdana,Geneva,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--teal);font-family:var(--font);font-size:14px;color:#000;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:none}
+button,input,textarea,select{font-family:var(--font);font-size:14px}
+
+/* ---------- BOOT ---------- */
+#boot{position:fixed;inset:0;background:#000;color:#c0c0c0;font-family:"Courier New",monospace;font-size:13px;padding:18px;z-index:100;line-height:1.5;white-space:pre-wrap;cursor:pointer}
+#boot .ok{color:#55ff55}
+#boot .warn{color:#ffff55}
+#boot .blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+#boot .skip{position:absolute;bottom:16px;right:18px;color:#808080;font-size:12px}
+
+/* ---------- DESKTOP ---------- */
+#desktop{position:fixed;inset:0 0 38px 0;overflow:hidden}
+.icons{position:absolute;top:10px;left:8px;display:flex;flex-direction:column;gap:14px;z-index:1}
+.icon{width:76px;text-align:center;color:#fff;font-size:12px;cursor:pointer;user-select:none;background:none;border:0;padding:0}
+.icon .img{font-size:32px;line-height:1;display:block;margin:0 auto 4px;filter:drop-shadow(1px 1px 0 #000)}
+.icon span{display:inline-block;padding:1px 2px}
+.icon:focus span,.icon:active span{background:var(--navy);outline:1px dotted #fff}
+
+/* ---------- TASKBAR ---------- */
+#taskbar{position:fixed;left:0;right:0;bottom:0;height:38px;background:var(--gray);box-shadow:inset 0 1px var(--light),inset 0 2px #fff;display:flex;align-items:center;gap:4px;padding:3px 4px;z-index:50}
+.start{display:flex;align-items:center;gap:4px;font-weight:bold;height:30px;padding:0 8px}
+.start .flag{font-size:16px}
+.task-btn{flex:0 1 200px;height:30px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:left;padding:0 8px;font-weight:bold}
+.tray{margin-left:auto;height:30px;display:flex;align-items:center;gap:6px;padding:0 10px;box-shadow:inset 1px 1px var(--dark),inset -1px -1px #fff;font-size:13px}
+#startmenu{position:fixed;left:4px;bottom:36px;width:250px;background:var(--gray);box-shadow:inset -1px -1px #000,inset 1px 1px var(--light),inset -2px -2px var(--dark),inset 2px 2px #fff;display:none;z-index:60;padding:3px 3px 3px 30px}
+#startmenu::before{content:"Manuel 95";position:absolute;left:3px;top:3px;bottom:3px;width:24px;background:linear-gradient(0deg,var(--navy),#1084d0);color:#c0c0c0;font-weight:bold;font-size:16px;writing-mode:vertical-rl;transform:rotate(180deg);display:flex;align-items:center;padding-top:8px}
+#startmenu button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:8px 6px;cursor:pointer}
+#startmenu button:hover,#startmenu button:focus{background:var(--navy);color:#fff}
+#startmenu hr{border:0;border-top:1px solid var(--dark);border-bottom:1px solid #fff;margin:2px 0}
+
+/* ---------- WINDOWS ---------- */
+.win{position:absolute;left:50%;top:48%;transform:translate(-50%,-50%);width:min(94vw,460px);max-height:calc(100% - 16px);display:none;flex-direction:column;background:var(--gray);padding:3px;
+  box-shadow:inset -1px -1px #000,inset 1px 1px var(--light),inset -2px -2px var(--dark),inset 2px 2px #fff,4px 4px 0 rgba(0,0,0,.25);z-index:10}
+.win.open{display:flex;animation:pop .14s ease-out}
+@keyframes pop{from{transform:translate(-50%,-50%) scale(.6);opacity:.3}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.win.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translate(-50%,-50%)}20%{transform:translate(calc(-50% - 8px),-50%)}40%{transform:translate(calc(-50% + 8px),-50%)}60%{transform:translate(calc(-50% - 5px),-50%)}80%{transform:translate(calc(-50% + 5px),-50%)}}
+.title{background:linear-gradient(90deg,var(--navy),#1084d0);color:#fff;font-weight:bold;padding:4px 4px 4px 6px;display:flex;align-items:center;gap:6px;flex:0 0 auto;user-select:none}
+.title .t{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.title .x{width:20px;height:18px;min-width:0;padding:0;font-weight:bold;font-size:12px;line-height:1;color:#000}
+.body{padding:12px;overflow:auto;flex:1 1 auto}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.dialog-msg{display:flex;gap:14px;align-items:flex-start;line-height:1.45}
+.dialog-msg .big{font-size:36px;line-height:1;flex:0 0 auto}
+.err-icon{width:38px;height:38px;border-radius:50%;background:#e00;color:#fff;font-weight:bold;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:1px 1px 0 #000;flex:0 0 auto}
+
+/* ---------- CONTROLS ---------- */
+.btn{background:var(--gray);border:0;min-width:92px;padding:7px 14px;cursor:pointer;color:#000;
+  box-shadow:inset -1px -1px #000,inset 1px 1px #fff,inset -2px -2px var(--dark),inset 2px 2px var(--light)}
+.btn:active:not(:disabled){box-shadow:inset 1px 1px #000,inset -1px -1px #fff,inset 2px 2px var(--dark),inset -2px -2px var(--light);padding:8px 13px 6px 15px}
+.btn:focus-visible{outline:1px dotted #000;outline-offset:-5px}
+.btn:disabled{color:var(--dark);text-shadow:1px 1px #fff;cursor:not-allowed}
+.btn.primary{font-weight:bold}
+.sunken{background:#fff;box-shadow:inset 1px 1px var(--dark),inset -1px -1px #fff,inset 2px 2px #000,inset -2px -2px var(--light)}
+input[type=text],textarea{width:100%;border:0;padding:7px 8px;background:#fff;outline:none;
+  box-shadow:inset 1px 1px var(--dark),inset -1px -1px #fff,inset 2px 2px #000,inset -2px -2px var(--light)}
+textarea{resize:vertical;min-height:62px}
+label{cursor:pointer}
+fieldset{border:0;margin:12px 0 0;padding:16px 10px 10px;position:relative;box-shadow:inset 1px 1px var(--dark),inset -1px -1px #fff,inset 2px 2px #fff,inset -2px -2px var(--dark)}
+legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
+.chk{display:flex;align-items:center;gap:8px;padding:4px 0}
+.chk input{width:16px;height:16px;margin:0;accent-color:var(--navy)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.lbl{display:block;margin:12px 0 5px}
+.hint{color:#404040;font-size:12px;margin-top:4px}
+
+/* progress */
+.prog-item{margin-bottom:14px}
+.prog-item .name{display:flex;justify-content:space-between;margin-bottom:4px;font-weight:bold;gap:8px}
+.bar{height:22px;padding:3px;background:#fff;box-shadow:inset 1px 1px var(--dark),inset -1px -1px #fff,inset 2px 2px #000,inset -2px -2px var(--light)}
+.bar i{display:block;height:100%;width:0;background:repeating-linear-gradient(90deg,var(--navy) 0 11px,transparent 11px 13px)}
+.prog-item .note{font-size:12px;color:#404040;margin-top:4px;min-height:15px}
+
+
+/* firma */
+.firma{font-family:"Brush Script MT","Segoe Script","Snell Roundhand","Lucida Handwriting",cursive;font-size:28px;color:var(--navy);min-height:44px;padding:4px 10px;border-bottom:1px solid #000;margin-top:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+
+/* boarding pass */
+.pass{background:#fffdf6;color:#111;font-family:"Courier New",monospace;border-radius:10px;overflow:hidden;box-shadow:0 1px 0 #000}
+.pass-head{background:var(--navy);color:#fff;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;letter-spacing:1px}
+.pass-route{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 6px}
+.pass-route .city b{display:block;font-size:34px;letter-spacing:2px}
+.pass-route .city small{font-size:11px;color:#555}
+.pass-route .plane{font-size:24px;animation:fly 2.4s ease-in-out infinite}
+@keyframes fly{0%,100%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+.pass-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 8px;padding:8px 16px 12px}
+.pass-grid div small{display:block;font-size:10px;color:#666;letter-spacing:1px}
+.pass-grid div b{font-size:14px}
+.pass-grid .full{grid-column:1/-1}
+.perf{border-top:2px dashed #999;margin:0 10px;position:relative}
+.perf::before,.perf::after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:var(--gray)}
+.perf::before{left:-21px}.perf::after{right:-21px}
+.gate{padding:12px 16px 4px}
+.gate small{font-size:10px;color:#666;letter-spacing:1px}
+.scratch-wrap{position:relative;margin-top:6px;border-radius:6px;overflow:hidden;min-height:76px;background:#fff7d6;border:1px solid #d8c88a}
+.scratch-under{padding:12px;text-align:center;font-weight:bold;font-size:16px;line-height:1.35}
+.scratch-under .addr{font-size:17px}
+#scratch{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .6s}
+.barcode{height:44px;margin:10px 16px 14px;background:repeating-linear-gradient(90deg,#111 0 2px,transparent 2px 4px,#111 4px 5px,transparent 5px 8px,#111 8px 11px,transparent 11px 12px)}
+.pass-foot{text-align:center;font-size:11px;color:#666;padding:0 12px 12px}
+.links{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px}
+.links a{text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.links .btn{min-width:0;padding:7px 10px;white-space:nowrap}
+.links{gap:6px!important;flex-wrap:nowrap!important}
+.hidden{display:none!important}
+.spin{display:flex;align-items:center;gap:6px}
+.spin .btn{min-width:38px;padding:6px 0;font-weight:bold;font-size:16px}
+.spin input{width:54px!important;text-align:center;font-weight:bold;font-size:16px}
+
+/* sending */
+.copy-anim{display:flex;align-items:center;justify-content:space-between;font-size:30px;padding:8px 6px 12px;position:relative}
+.copy-anim .paper{position:absolute;left:40px;top:10px;font-size:22px;animation:paper 1s linear infinite}
+@keyframes paper{0%{left:40px;top:18px}50%{top:0}100%{left:calc(100% - 64px);top:18px}}
+
+/* balloon / toast */
+#toast{position:fixed;right:8px;bottom:46px;max-width:min(320px,92vw);background:#ffffe1;border:1px solid #000;padding:10px 26px 10px 12px;font-size:13px;line-height:1.4;z-index:70;display:none;box-shadow:2px 2px 0 rgba(0,0,0,.3)}
+#toast b{display:block;margin-bottom:3px}
+#toast .tx{position:absolute;top:2px;right:6px;cursor:pointer;font-weight:bold}
+
+/* confetti */
+.confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:90;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+
+/* runaway */
+#btn-ignore{transition:left .12s, top .12s}
+#btn-ignore.run{position:absolute;z-index:5}
+
+@media (min-width:700px){
+  .icons{gap:22px}
+}
+@media (max-width:420px){
+  .icons{display:none}
+  .dialog-msg .big{font-size:30px}
+}
+@media (prefers-reduced-motion:reduce){
+  .win.open,.win.shake,.pass-route .plane,.copy-anim .paper{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= BOOT ======================= -->
+<div id="boot" role="button" aria-label="Tocá para continuar"><span id="boot-text"></span><span class="blink">_</span><div class="skip">tocá para saltear ›</div></div>
+
+<!-- ======================= DESKTOP ======================= -->
+<div id="desktop">
+  <div class="icons">
+    <button class="icon" data-msg="mipc"><span class="img">🖥️</span><span>Mi PC</span></button>
+    <button class="icon" data-msg="docs"><span class="img">📁</span><span>Mis documentos</span></button>
+    <button class="icon" data-msg="itba"><span class="img">🎓</span><span>Ingeniería.lnk</span></button>
+    <button class="icon" data-msg="trash"><span class="img">🗑️</span><span>Papelera de reciclaje</span></button>
+    <button class="icon" data-msg="isr"><span class="img">✈️</span><span>ISR.exe</span></button>
+  </div>
+
+  <!-- 1. ERROR -->
+  <section class="win" id="w-error" role="alertdialog" aria-labelledby="t-error">
+    <div class="title"><span class="t" id="t-error">MANUEL.EXE — Error crítico</span><button class="btn x" data-shake aria-label="Cerrar">✕</button></div>
+    <div class="body">
+      <div class="dialog-msg">
+        <div class="err-icon">✕</div>
+        <div>
+          <p style="margin:0 0 8px"><b>MANUEL.EXE ha completado su ciclo en Argentina y será migrado al servidor ISR.</b></p>
+          <p style="margin:0 0 8px">Antes de apagar el sistema se ejecutará el proceso <code>CIERRE_DE_SESION.bat</code>, que requiere la presencia física de <b>toda la familia</b>.</p>
+          <p style="margin:0;font-size:12px;color:#404040">Código de error: 0x19_12_1800</p>
+        </div>
+      </div>
+      <div class="row" id="err-row">
+        <button class="btn primary" id="btn-accept">Aceptar</button>
+        <button class="btn" id="btn-ignore">Ignorar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. INSTALL -->
+  <section class="win" id="w-install" aria-labelledby="t-install">
+    <div class="title"><span class="t" id="t-install">Asistente de actualización — MANUEL.EXE</span><button class="btn x" data-shake aria-label="Cerrar">✕</button></div>
+    <div class="body">
+      <p style="margin:0 0 14px">Se están instalando actualizaciones importantes. <b>No apague el equipo.</b></p>
+
+      <div class="prog-item">
+        <div class="name"><span>🎓 Ingeniero_Industrial.exe</span><span id="p1t">0%</span></div>
+        <div class="bar"><i id="p1"></i></div>
+        <div class="note" id="p1n"></div>
+      </div>
+      <div class="prog-item">
+        <div class="name"><span>🎂 Actualizando a versión 23.0</span><span id="p2t">0%</span></div>
+        <div class="bar"><i id="p2"></i></div>
+        <div class="note" id="p2n"></div>
+      </div>
+      <div class="prog-item">
+        <div class="name"><span>✈️ Migrando servidor BUE → ISR</span><span id="p3t">0%</span></div>
+        <div class="bar"><i id="p3"></i></div>
+        <div class="note" id="p3n"></div>
+      </div>
+
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn" disabled>&lt; Atrás</button>
+        <button class="btn primary" id="btn-install-next" disabled>Siguiente &gt;</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. FORM -->
+  <section class="win" id="w-form" aria-labelledby="t-form">
+    <div class="title"><span class="t" id="t-form">Registrar usuario — CIERRE_DE_SESION.bat</span><button class="btn x" data-shake aria-label="Cerrar">✕</button></div>
+    <div class="body">
+      <form id="rsvp" novalidate autocomplete="on">
+        <label class="lbl" for="f-nombre" style="margin-top:0"><b>Nombre y apellido</b> <span style="color:#404040">(o familia)</span></label>
+        <input type="text" id="f-nombre" name="nombre" maxlength="80" autocomplete="name" placeholder="Ej: Familia Pérez" required>
+
+        <fieldset>
+          <legend>¿Asistirás al cierre de sesión?</legend>
+          <label class="chk"><input type="radio" name="viene" value="Sí"> Sí, ahí estoy</label>
+          <label class="chk"><input type="radio" name="viene" value="No"> No puedo 😢</label>
+        </fieldset>
+
+        <fieldset id="fs-cant" class="hidden">
+          <legend>¿Con cuántos venís? (contándote a vos)</legend>
+          <div class="spin">
+            <button type="button" class="btn" id="cant-minus" aria-label="Uno menos">−</button>
+            <input type="text" id="f-cant" inputmode="numeric" value="1" aria-label="Cantidad de personas" maxlength="2">
+            <button type="button" class="btn" id="cant-plus" aria-label="Uno más">+</button>
+            <span id="cant-txt" class="hint" style="margin:0">Solo vos</span>
+          </div>
+        </fieldset>
+
+        <fieldset id="fs-food">
+          <legend>Restricciones alimentarias del grupo</legend>
+          <div class="grid2">
+            <label class="chk"><input type="checkbox" name="rest" value="Ninguna" checked> Ninguna</label>
+            <label class="chk"><input type="checkbox" name="rest" value="Vegetariano/a"> Vegetariano/a</label>
+            <label class="chk"><input type="checkbox" name="rest" value="Vegano/a"> Vegano/a</label>
+            <label class="chk"><input type="checkbox" name="rest" value="Celíaco/a (sin TACC)"> Celíaco/a</label>
+            <label class="chk"><input type="checkbox" name="rest" value="Kosher"> Kosher</label>
+            <label class="chk"><input type="checkbox" name="rest" value="Sin lactosa"> Sin lactosa</label>
+            <label class="chk"><input type="checkbox" name="rest" value="Alergia"> Alergia</label>
+            <label class="chk"><input type="checkbox" name="rest" value="Otra"> Otra</label>
+          </div>
+          <div id="food-extra" class="hidden">
+            <label class="lbl" for="f-food">¿Cuál? Contanos</label>
+            <input type="text" id="f-food" maxlength="200" placeholder="Ej: alergia al maní">
+          </div>
+        </fieldset>
+
+        <label class="lbl" for="f-msg">Mensaje para Manuel <span style="color:#404040">(opcional)</span></label>
+        <textarea id="f-msg" maxlength="500" placeholder="Un consejo, un deseo o la receta que voy a extrañar."></textarea>
+
+        <label class="lbl">Firma digital del Firmante</label>
+        <div class="firma sunken" id="firma" aria-live="polite">&nbsp;</div>
+        <div class="hint">Al firmar te comprometés a no preguntar "¿y no te da miedo?" durante el evento.</div>
+
+        <div class="row">
+          <button type="submit" class="btn primary" id="btn-submit">✍️ Firmar y embarcar</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- 4b. CONFIRM NO -->
+  <section class="win" id="w-confirm-no" role="alertdialog" aria-labelledby="t-cno" style="width:min(90vw,360px);z-index:20">
+    <div class="title"><span class="t" id="t-cno">Confirmar</span></div>
+    <div class="body">
+      <div class="dialog-msg"><span class="big">⚠️</span><p style="margin:0">¿Seguro que no podés venir? Esta acción será informada al grupo de WhatsApp familiar.</p></div>
+      <div class="row">
+        <button class="btn" id="btn-no-ok">Sí, no puedo</button>
+        <button class="btn primary" id="btn-no-change">Bueno, voy</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. SENDING -->
+  <section class="win" id="w-send" aria-labelledby="t-send" style="width:min(90vw,380px);z-index:20">
+    <div class="title"><span class="t" id="t-send">Copiando...</span></div>
+    <div class="body">
+      <div class="copy-anim"><span>📂</span><span class="paper">📄</span><span>🗄️</span></div>
+      <p style="margin:0 0 6px" id="send-txt">Enviando tus datos al servidor central...</p>
+      <div class="bar"><i id="send-bar" style="transition:width 1.6s linear"></i></div>
+      <p style="margin:8px 0 0;font-size:12px;color:#404040">Tiempo restante: 3 segundos (estimación de Windows: 47 minutos)</p>
+    </div>
+  </section>
+
+  <!-- 6. BOARDING PASS -->
+  <section class="win" id="w-pass" aria-labelledby="t-pass">
+    <div class="title"><span class="t" id="t-pass">Tarjeta_de_embarque.jpg — Visor de imágenes</span><button class="btn x" data-shake aria-label="Cerrar">✕</button></div>
+    <div class="body">
+      <div class="pass">
+        <div class="pass-head"><span>✈ MANU AIR</span><span>TARJETA DE EMBARQUE</span></div>
+        <div class="pass-route">
+          <div class="city"><b>BUE</b><small>Buenos Aires</small></div>
+          <div class="plane">✈</div>
+          <div class="city" style="text-align:right"><b>ISR</b><small>Próximo destino</small></div>
+        </div>
+        <div class="pass-grid">
+          <div class="full"><small>TITULAR</small><b id="pass-name">—</b></div>
+          <div><small>FECHA</small><b>SÁB 19 DIC</b></div>
+          <div><small>EMBARQUE</small><b>18:00</b></div>
+          <div><small>VUELO</small><b>MNL 1912</b></div>
+          <div><small>PASAJEROS</small><b id="pass-cant">1</b></div>
+          <div><small>CLASE</small><b>FAMILIA</b></div>
+          <div><small>EQUIPAJE</small><b>Abrazos</b></div>
+          <div class="full"><small>MENÚ ESPECIAL</small><b id="pass-food">—</b></div>
+        </div>
+        <div class="perf"></div>
+        <div class="gate">
+          <small>PUERTA DE EMBARQUE (raspá con el dedo)</small>
+          <div class="scratch-wrap" id="scratch-wrap">
+            <div class="scratch-under">
+              <div>🏠 Casa de Manuel</div>
+              <div class="addr" id="pass-addr"></div>
+            </div>
+            <canvas id="scratch" aria-label="Raspá para ver la dirección"></canvas>
+          </div>
+        </div>
+        <div class="barcode" aria-hidden="true"></div>
+        <div class="pass-foot">Presentar esta tarjeta en la puerta. O simplemente tocar el timbre.</div>
+      </div>
+      <div class="links">
+        <a class="btn hidden" id="btn-maps" target="_blank" rel="noopener">📍 Abrir en Maps</a>
+        <a class="btn" id="btn-cal" target="_blank" rel="noopener">📅 Agendar</a>
+        <button class="btn" id="btn-pass-close">✕ Cerrar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6b. SAD -->
+  <section class="win" id="w-sad" aria-labelledby="t-sad" style="width:min(90vw,380px)">
+    <div class="title"><span class="t" id="t-sad">Pasaje cancelado</span><button class="btn x" data-close aria-label="Cerrar">✕</button></div>
+    <div class="body">
+      <div class="dialog-msg"><span class="big">💾</span>
+        <div>
+          <p style="margin:0 0 8px"><b>Respuesta registrada.</b></p>
+          <p style="margin:0">Te vamos a extrañar. Si se te libera la agenda, volvé a abrir este link y cambiá la respuesta: el sistema perdona.</p>
+        </div>
+      </div>
+      <div class="row"><button class="btn primary" data-close>Aceptar</button></div>
+    </div>
+  </section>
+
+  <!-- RETURNING USER -->
+  <section class="win" id="w-back" aria-labelledby="t-back" style="width:min(90vw,380px)">
+    <div class="title"><span class="t" id="t-back">Sesión encontrada</span></div>
+    <div class="body">
+      <div class="dialog-msg"><span class="big">👤</span><p style="margin:0">Ya hay un usuario registrado en este dispositivo: <b id="back-name"></b>. ¿Qué querés hacer?</p></div>
+      <div class="row">
+        <button class="btn primary" id="btn-back-pass">Ver mi pasaje</button>
+        <button class="btn" id="btn-back-restart">Empezar de nuevo</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- START MENU -->
+<nav id="startmenu" aria-label="Menú Inicio">
+  <button data-msg="prog">📂 Programas</button>
+  <button data-msg="docs">📄 Documentos</button>
+  <button data-msg="conf">⚙️ Configuración</button>
+  <button data-msg="help">❓ Ayuda</button>
+  <hr>
+  <button data-msg="off">🔌 Cerrar sesión de Argentina...</button>
+</nav>
+
+<!-- TASKBAR -->
+<div id="taskbar">
+  <button class="btn start" id="start-btn" aria-expanded="false"><span class="flag">🪟</span>Inicio</button>
+  <button class="btn task-btn" id="task-btn">⚠ MANUEL.EXE</button>
+  <div class="tray"><span title="Volumen">🔊</span><span id="clock">18:00</span></div>
+</div>
+
+<div id="toast" role="status"><span class="tx" onclick="hideToast()">✕</span><b id="toast-t"></b><span id="toast-m"></span></div>
+
+<script>
+/* =================================================================
+   CONFIGURACIÓN — editá solo esto
+   ================================================================= */
+const CONFIG = {
+  // URL de la Web App de Google Apps Script (termina en /exec).
+  // Si queda vacía, la invitación funciona en "modo demo" y no guarda nada.
+  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzNmRLamV3jNhNElFA6C7ixzvNyByE6K8JvZR5ZlMCsFyWjFK1XAqTdygSwKolNRrWyJA/exec",
+
+  DIRECCION: "Asunción 3366, CABA",          // ej: "Av. Siempreviva 742, 3°B, Palermo"
+  MAPS_URL:  "https://maps.app.goo.gl/3tXh1v7DHvMRUwsB6",                             // opcional: link de Google Maps. Si queda vacío se arma solo con DIRECCION.
+
+  // Para el botón "Agendar" (hora local Buenos Aires)
+  EVENTO_TITULO: "MANUEL.EXE — Cierre de sesión familiar 🎓🎂✈️",
+  INICIO: "20261219T180000",
+  FIN:    "20261219T230000",
+};
+
+/* ================================================================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const store = {
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){} }
+};
+
+/* ---------- sonidos 8-bit (WebAudio, sin archivos) ---------- */
+let actx;
+function beep(freqs=[880], dur=.09, type="square", vol=.05){
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    let t = actx.currentTime;
+    freqs.forEach(f=>{
+      const o=actx.createOscillator(), g=actx.createGain();
+      o.type=type; o.frequency.value=f; g.gain.value=vol;
+      o.connect(g); g.connect(actx.destination);
+      o.start(t); g.gain.exponentialRampToValueAtTime(.0001,t+dur); o.stop(t+dur);
+      t += dur*.9;
+    });
+  }catch(e){}
+}
+const sndError = ()=>beep([440,330],.14,"square",.05);
+const sndOk    = ()=>beep([523,659,784],.09,"square",.04);
+const sndTada  = ()=>beep([523,659,784,1047,784,1047],.11,"triangle",.07);
+
+/* ---------- ventanas ---------- */
+let current = null;
+function openWin(id, title){
+  const w = $("#"+id);
+  w.classList.add("open");
+  current = id;
+  const t = title || w.querySelector(".title .t").textContent;
+  $("#task-btn").textContent = t.length > 28 ? t.slice(0,27)+"…" : t;
+}
+function closeWin(id){ $("#"+id).classList.remove("open"); }
+function swap(from, to){ closeWin(from); setTimeout(()=>openWin(to), 120); }
+function shake(w){ w.classList.remove("shake"); void w.offsetWidth; w.classList.add("shake"); sndError(); }
+
+$$("[data-shake]").forEach(b=>b.addEventListener("click",e=>{
+  const w = e.target.closest(".win");
+  shake(w);
+  toast("Acceso denegado","Esta ventana no se puede cerrar. Como tu agenda del 19/12.");
+}));
+$$("[data-close]").forEach(b=>b.addEventListener("click",e=>closeWin(e.target.closest(".win").id)));
+
+/* ---------- toast ---------- */
+let toastTimer;
+function toast(t,m,ms=4200){
+  $("#toast-t").textContent=t; $("#toast-m").textContent=m;
+  $("#toast").style.display="block";
+  clearTimeout(toastTimer); toastTimer=setTimeout(hideToast,ms);
+}
+function hideToast(){ $("#toast").style.display="none"; }
+
+/* ---------- reloj ---------- */
+function tick(){ const d=new Date(); $("#clock").textContent=d.toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hour12:false}); }
+tick(); setInterval(tick, 15000);
+
+/* ---------- íconos y menú inicio ---------- */
+const MSGS = {
+  mipc:["Mi PC","Procesador: mate amargo. Memoria RAM: insuficiente para tanto vocabulario en hebreo."],
+  docs:["Mis documentos","Pasaporte.pdf · Titulo_ITBA_FINAL_v7_ahora_si.pdf · Lista_de_cosas_para_la_valija (47).docx"],
+  itba:["Ingeniería.lnk","Instalación completada. Tiempo total: varios años y una cantidad indeterminada de pelo perdido."],
+  trash:["Papelera de reciclaje","Contiene: la frase \"¿y no te da miedo?\"."],
+  isr:["ISR.exe","Este programa se ejecutará automáticamente en enero de 2027. No intente detenerlo."],
+  prog:["Programas","Mate.exe · Picada.exe · Despedida.exe (en ejecución)"],
+  conf:["Configuración","Idioma: español rioplatense. Próximamente: עברית."],
+  help:["Ayuda","¿Necesitás ayuda? Seguí las instrucciones de la ventana. Es una invitación, no un parcial."],
+  off:["Cerrar sesión","Esta opción estará disponible a partir de enero de 2027."],
+};
+$$("[data-msg]").forEach(el=>el.addEventListener("click",()=>{
+  const [t,m]=MSGS[el.dataset.msg]; toast(t,m); beep([660],.06);
+  closeStart();
+}));
+function closeStart(){ $("#startmenu").style.display="none"; $("#start-btn").setAttribute("aria-expanded","false"); }
+$("#start-btn").addEventListener("click",e=>{
+  e.stopPropagation();
+  const open = $("#startmenu").style.display==="block";
+  $("#startmenu").style.display = open ? "none" : "block";
+  $("#start-btn").setAttribute("aria-expanded", String(!open));
+});
+document.addEventListener("click",e=>{ if(!e.target.closest("#startmenu")) closeStart(); });
+$("#task-btn").addEventListener("click",()=>{ if(current && $("#"+current).classList.contains("open")) shake($("#"+current)); });
+
+/* =================================================================
+   0. BOOT
+   ================================================================= */
+const BOOT = [
+  ["Manuel BIOS v23.0 — (C) 2003-2026 Ejberowicz Corp.",""],
+  ["",""],
+  ["Detectando título de ingeniero............ ","<span class='ok'>OK</span>"],
+  ["Detectando cumpleaños número 23........... ","<span class='ok'>OK</span>"],
+  ["Detectando pasaje a ISR................... ","<span class='ok'>OK</span>"],
+  ["Detectando familia........................ ","<span class='ok'>COMPLETA</span>"],
+  ["Grupo de WhatsApp familiar................ ","<span class='warn'>347 SIN LEER</span>"],
+  ["Detectando ganas de despedirse............ ","<span class='warn'>MUCHAS</span>"],
+  ["",""],
+  ["Iniciando MANUEL.EXE...",""],
+];
+let booted=false;
+function runBoot(){
+  const out=$("#boot-text"); let i=0;
+  (function next(){
+    if(booted) return;
+    if(i>=BOOT.length){ setTimeout(endBoot,650); return; }
+    out.innerHTML += BOOT[i][0] + BOOT[i][1] + "\n"; i++;
+    setTimeout(next, i<3?260:360);
+  })();
+}
+function endBoot(){
+  if(booted) return; booted=true;
+  $("#boot").style.display="none";
+  const saved = store.get("manuel_rsvp_familia");
+  if(saved && saved.nombre){
+    $("#back-name").textContent = saved.nombre;
+    openWin("w-back");
+  } else {
+    openWin("w-error"); sndError();
+  }
+}
+$("#boot").addEventListener("click", endBoot);
+runBoot();
+
+$("#btn-back-pass").onclick=()=>{
+  const s=store.get("manuel_rsvp_familia");
+  closeWin("w-back");
+  if(s.viene==="Sí"){ fillPass(s); openWin("w-pass"); } else openWin("w-sad");
+};
+$("#btn-back-restart").onclick=()=>{ store.del("manuel_rsvp_familia"); swap("w-back","w-error"); };
+
+/* =================================================================
+   1. ERROR + botón que se escapa
+   ================================================================= */
+const IGNORE_LABELS=["Ignorar","¿Seguro?","No","Nop","Casi","Muy lento","Ni lo sueñes","Rendite","Ok, basta"];
+let flees=0;
+const ign=$("#btn-ignore");
+function flee(e){
+  if(e){ e.preventDefault(); e.stopPropagation(); }
+  flees++;
+  if(flees>=IGNORE_LABELS.length){
+    ign.remove();
+    toast("Aviso del sistema","El botón Ignorar también se mudó a ISR. Te queda una sola opción.");
+    sndError(); return;
+  }
+  const w=$("#w-error"), wr=w.getBoundingClientRect();
+  ign.classList.add("run");
+  ign.textContent=IGNORE_LABELS[flees];
+  const bw=ign.offsetWidth, bh=ign.offsetHeight;
+  // posición al azar dentro de la ventana, sin tapar "Aceptar"
+  const ar=$("#btn-accept").getBoundingClientRect();
+  let x,y,tries=0;
+  do{
+    x = 6 + Math.random()*(wr.width - bw - 12);
+    y = 30 + Math.random()*(wr.height - bh - 36);
+    tries++;
+  }while(tries<40 && !(wr.left+x+bw < ar.left-8 || wr.left+x > ar.right+8 || wr.top+y+bh < ar.top-8 || wr.top+y > ar.bottom+8));
+  ign.style.left = x+"px"; ign.style.top = y+"px";
+  beep([1200],.04,"square",.03);
+}
+ign.addEventListener("pointerenter", e=>{ if(e.pointerType==="mouse") flee(e); });
+ign.addEventListener("pointerdown", flee);
+ign.addEventListener("click", flee);
+ign.addEventListener("focus", ()=>{ if(flees>0) ign.blur(); });
+
+$("#btn-accept").onclick=()=>{ sndOk(); swap("w-error","w-install"); setTimeout(runInstall,350); };
+
+/* =================================================================
+   2. INSTALADOR
+   ================================================================= */
+function animateBar(n, to, ms){
+  return new Promise(res=>{
+    const bar=$("#p"+n), txt=$("#p"+n+"t"); const t0=performance.now();
+    (function f(t){
+      const k=Math.min(1,(t-t0)/ms);
+      // avance "a lo Windows": irregular
+      const eased = k<1 ? Math.min(to, Math.floor(to*(k + Math.sin(k*9)*0.04))) : to;
+      const v=Math.max(0,eased);
+      bar.style.width=v+"%"; txt.textContent=v+"%";
+      k<1 ? requestAnimationFrame(f) : res();
+    })(t0);
+  });
+}
+let installed=false;
+async function runInstall(){
+  if(installed) return; installed=true;
+  $("#p1n").textContent="Compilando... (esto tardó un par de años)";
+  await animateBar(1,100,1700);
+  $("#p1n").textContent="✔ Instalado. Ahora sí, oficialmente nadie sabe qué hago.";
+  beep([784],.06);
+  $("#p2n").textContent="Aplicando parche de cumpleaños...";
+  await animateBar(2,100,1200);
+  $("#p2n").textContent="✔ Versión 23.0. Notas: +1 de experiencia.";
+  beep([880],.06);
+  $("#p3n").textContent="Empaquetando 23 años en 2 valijas...";
+  await animateBar(3,99,1800);
+  $("#p3n").innerHTML="⏸ <b>Detenido en 99%.</b> Pendiente: despedirse de vos.";
+  sndError();
+  $("#btn-install-next").disabled=false;
+  $("#btn-install-next").focus();
+}
+$("#btn-install-next").onclick=()=>{
+  sndOk(); swap("w-install","w-form");
+  // nombre prellenado desde el link: ?n=Juan
+  const pre = new URLSearchParams(location.search).get("n");
+  if(pre && !$("#f-nombre").value){ $("#f-nombre").value=pre; updateFirma(); }
+  setTimeout(()=>$("#f-nombre").focus(),250);
+};
+
+/* =================================================================
+   4. FORMULARIO
+   ================================================================= */
+function updateFirma(){ const v=$("#f-nombre").value.trim(); $("#firma").textContent = v || " "; }
+$("#f-nombre").addEventListener("input", updateFirma);
+
+// restricciones: "Ninguna" excluye al resto
+$$("input[name=rest]").forEach(c=>c.addEventListener("change",()=>{
+  if(c.value==="Ninguna" && c.checked) $$("input[name=rest]").forEach(o=>{ if(o!==c) o.checked=false; });
+  else if(c.checked) $("input[name=rest][value=Ninguna]").checked=false;
+  if(!$$("input[name=rest]").some(o=>o.checked)) $("input[name=rest][value=Ninguna]").checked=true;
+  const needs = $$("input[name=rest]").some(o=>o.checked && (o.value==="Otra"||o.value==="Alergia"));
+  $("#food-extra").classList.toggle("hidden", !needs);
+}));
+// si no viene, ocultamos comida
+$$("input[name=viene]").forEach(r=>r.addEventListener("change",()=>{
+  const no = r.value==="No" && r.checked;
+  $("#fs-food").classList.toggle("hidden", no);
+  $("#fs-cant").classList.toggle("hidden", no);
+}));
+
+// cantidad de personas (1 a 20)
+function getCant(){ const n=parseInt($("#f-cant").value,10); return isNaN(n)?1:Math.min(20,Math.max(1,n)); }
+function setCant(n){
+  n=Math.min(20,Math.max(1,n)); $("#f-cant").value=n;
+  $("#cant-txt").textContent = n===1 ? "Solo vos" : n>=8 ? "¡Vienen con toda la tribu!" : "Vos + "+(n-1);
+}
+$("#cant-minus").onclick=()=>{ setCant(getCant()-1); beep([520],.04); };
+$("#cant-plus").onclick=()=>{ setCant(getCant()+1); beep([780],.04); };
+$("#f-cant").addEventListener("input",()=>{ $("#f-cant").value=$("#f-cant").value.replace(/\D/g,""); });
+$("#f-cant").addEventListener("change",()=>setCant(getCant()));
+
+function getData(){
+  const viene = ($$("input[name=viene]").find(r=>r.checked)||{}).value || "";
+  let rest = $$("input[name=rest]").filter(c=>c.checked).map(c=>c.value);
+  const extra = $("#f-food").value.trim();
+  let restStr = rest.join(", ");
+  if(extra && !$("#food-extra").classList.contains("hidden")) restStr += " — " + extra;
+  return {
+    nombre: $("#f-nombre").value.trim(),
+    viene,
+    cantidad: viene==="No" ? "0" : String(getCant()),
+    restriccion: viene==="No" ? "" : restStr,
+    mensaje: $("#f-msg").value.trim(),
+  };
+}
+
+$("#rsvp").addEventListener("submit",e=>{
+  e.preventDefault();
+  const d=getData();
+  if(d.nombre.length<2){
+    shake($("#w-form")); toast("Campo obligatorio","Necesitamos tu nombre. El sistema no acepta invitados anónimos."); $("#f-nombre").focus(); return;
+  }
+  if(!d.viene){ shake($("#w-form")); toast("Campo obligatorio","Falta decir si venís. (Pista: sí.)"); return; }
+  if(d.viene==="Sí" && $$("input[name=rest]").some(o=>o.checked && (o.value==="Otra"||o.value==="Alergia")) && !$("#f-food").value.trim()){
+    shake($("#w-form")); toast("Falta un dato","Contanos cuál es la restricción o alergia."); $("#f-food").focus(); return;
+  }
+  if(d.viene==="No"){ openWin("w-confirm-no"); sndError(); return; }
+  send(d);
+});
+$("#btn-no-change").onclick=()=>{
+  closeWin("w-confirm-no");
+  $("input[name=viene][value='Sí']").checked=true;
+  $("#fs-food").classList.remove("hidden");
+  $("#fs-cant").classList.remove("hidden");
+  current="w-form"; sndTada();
+  toast("Excelente decisión","Sabía que ibas a recapacitar. Completá cuántos vienen y lo de la comida, y firmá.");
+};
+$("#btn-no-ok").onclick=()=>{ closeWin("w-confirm-no"); send(getData()); };
+
+/* =================================================================
+   5. ENVÍO A GOOGLE SHEETS (Apps Script)
+   ================================================================= */
+async function send(d){
+  closeWin("w-form"); openWin("w-send");
+  $("#send-bar").style.width="0%";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>$("#send-bar").style.width="100%"));
+  $("#btn-submit").disabled=true;
+
+  const minWait = new Promise(r=>setTimeout(r,1800));
+  let ok=true;
+  try{
+    if(CONFIG.SCRIPT_URL){
+      const body = new URLSearchParams({ ...d, ua: navigator.userAgent.slice(0,120) });
+      await fetch(CONFIG.SCRIPT_URL,{ method:"POST", mode:"no-cors", body });
+    } else {
+      console.info("[MODO DEMO] No hay SCRIPT_URL configurada. Datos:", d);
+    }
+  }catch(err){ ok=false; console.error(err); }
+  await minWait;
+  closeWin("w-send");
+  $("#btn-submit").disabled=false;
+
+  if(!ok){
+    openWin("w-form");
+    shake($("#w-form"));
+    toast("Error de red","No se pudo enviar. Revisá tu conexión y volvé a tocar \"Firmar y embarcar\".",7000);
+    return;
+  }
+  store.set("manuel_rsvp_familia", d);
+  if(d.viene==="Sí"){ fillPass(d); openWin("w-pass"); sndTada(); confetti(); }
+  else openWin("w-sad");
+}
+
+/* =================================================================
+   6. PASAJE + RASPADITA
+   ================================================================= */
+function fillPass(d){
+  $("#pass-name").textContent = d.nombre.toUpperCase();
+  $("#pass-cant").textContent = d.cantidad || "1";
+  const food = (d.restriccion||"").replace(/^Ninguna$/,"");
+  $("#pass-food").textContent = food ? food : "Estándar (comemos de todo)";
+  $("#pass-addr").textContent = CONFIG.DIRECCION;
+  const maps = CONFIG.MAPS_URL || ("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(CONFIG.DIRECCION));
+  $("#btn-maps").href = maps;
+  const cal = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    + "&text="+encodeURIComponent(CONFIG.EVENTO_TITULO)
+    + "&dates="+CONFIG.INICIO+"/"+CONFIG.FIN
+    + "&ctz=America/Argentina/Buenos_Aires"
+    + "&location="+encodeURIComponent(CONFIG.DIRECCION)
+    + "&details="+encodeURIComponent("Recibida + cumple 23 + despedida en familia antes de ISR. Recordá: prohibido preguntar \"¿y no te da miedo?\".");
+  $("#btn-cal").href = cal;
+  setTimeout(initScratch, 200);
+}
+
+let scratchDone=false;
+function initScratch(){
+  const cv=$("#scratch"), wrap=$("#scratch-wrap");
+  if(scratchDone){ cv.style.display="none"; $("#btn-maps").classList.remove("hidden"); return; }
+  const r=wrap.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr; cv.height=r.height*dpr;
+  const ctx=cv.getContext("2d"); ctx.scale(dpr,dpr);
+  // capa plateada
+  const g=ctx.createLinearGradient(0,0,r.width,r.height);
+  g.addColorStop(0,"#a8a8a8"); g.addColorStop(.5,"#e2e2e2"); g.addColorStop(1,"#9a9a9a");
+  ctx.fillStyle=g; ctx.fillRect(0,0,r.width,r.height);
+  // brillitos
+  for(let i=0;i<220;i++){ ctx.fillStyle=`rgba(255,255,255,${Math.random()*.5})`; ctx.fillRect(Math.random()*r.width,Math.random()*r.height,1.5,1.5); }
+  ctx.fillStyle="#555"; ctx.font="bold 15px Courier New, monospace"; ctx.textAlign="center"; ctx.textBaseline="middle";
+  ctx.fillText("🪙  RASPÁ ACÁ  🪙", r.width/2, r.height/2);
+
+  ctx.globalCompositeOperation="destination-out";
+  let down=false, last=null, moves=0;
+  const pos=e=>{ const b=cv.getBoundingClientRect(); return {x:e.clientX-b.left, y:e.clientY-b.top}; };
+  const scratch=p=>{
+    ctx.lineWidth=34; ctx.lineCap="round"; ctx.lineJoin="round";
+    ctx.beginPath(); ctx.moveTo((last||p).x,(last||p).y); ctx.lineTo(p.x,p.y); ctx.stroke();
+    ctx.beginPath(); ctx.arc(p.x,p.y,17,0,Math.PI*2); ctx.fill();
+    last=p;
+    if(++moves%8===0) check();
+  };
+  cv.onpointerdown=e=>{ down=true; last=null; cv.setPointerCapture(e.pointerId); scratch(pos(e)); };
+  cv.onpointermove=e=>{ if(down) scratch(pos(e)); };
+  cv.onpointerup=cv.onpointercancel=()=>{ down=false; last=null; check(); };
+  function check(){
+    const data=ctx.getImageData(0,0,cv.width,cv.height).data;
+    let clear=0, n=0;
+    for(let i=3;i<data.length;i+=4*24){ n++; if(data[i]===0) clear++; }
+    if(clear/n>0.5) reveal();
+  }
+  function reveal(){
+    if(scratchDone) return; scratchDone=true;
+    cv.style.opacity=0; setTimeout(()=>cv.style.display="none",600);
+    $("#btn-maps").classList.remove("hidden");
+    sndTada(); confetti(60);
+    toast("¡Puerta asignada!","Nos vemos el sábado 19 a las 18:00. Traé hambre.");
+  }
+}
+
+$("#btn-pass-close").onclick=()=>{
+  closeWin("w-pass"); current="w-pass";
+  $("#task-btn").textContent="✈ Tarjeta de embarque";
+  beep([523,392],.08);
+  toast("Nos vemos el 19/12","Si necesitás ver la tarjeta de nuevo, tocá el botón de la barra de tareas.");
+};
+$("#task-btn").addEventListener("click",()=>{
+  if(current==="w-pass" && !$("#w-pass").classList.contains("open")) openWin("w-pass");
+},true);
+
+/* ---------- confetti ---------- */
+function confetti(n=90){
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const colors=["#ff0","#0f0","#0ff","#f0f","#fff","#000080","#e00","#75AADB"];
+  for(let i=0;i<n;i++){
+    const c=document.createElement("div"); c.className="confetti";
+    c.style.left=Math.random()*100+"vw";
+    c.style.background=colors[i%colors.length];
+    c.style.animationDuration=(2.2+Math.random()*2.2)+"s";
+    c.style.animationDelay=(Math.random()*.6)+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),5200);
+  }
+}
+</script>
+</body>
+</html>
