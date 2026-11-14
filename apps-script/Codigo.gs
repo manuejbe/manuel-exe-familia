@@ -10,7 +10,7 @@
  */
 
 const SHEET_NAME = 'Respuestas';
-const HEADERS = ['Fecha y hora', 'Nombre', '¿Viene?', 'Restricción alimentaria', 'Mensaje', 'Dispositivo'];
+const HEADERS = ['Fecha y hora', 'Nombre', '¿Viene?', 'Mensaje', 'Dispositivo'];
 
 function doPost(e) {
   const lock = LockService.getScriptLock();
@@ -22,7 +22,6 @@ function doPost(e) {
       new Date(),
       clean_(p.nombre),
       clean_(p.viene),
-      clean_(p.restriccion),
       clean_(p.mensaje),
       clean_(p.ua),
     ]);
@@ -43,10 +42,12 @@ function setup() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   ss.setSpreadsheetTimeZone('America/Argentina/Buenos_Aires');
   const sh = getSheet_();
-  // Si quedó la columna "Cantidad de personas" de una versión anterior, se borra (con sus datos)
-  const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
-  const ci = head.indexOf('Cantidad de personas');
-  if (ci >= 0) sh.deleteColumn(ci + 1);
+  // Borrar columnas de versiones anteriores (con sus datos)
+  ['Cantidad de personas', 'Restricción alimentaria'].forEach(name => {
+    const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+    const ci = head.indexOf(name);
+    if (ci >= 0) sh.deleteColumn(ci + 1);
+  });
   // Encabezados siempre al día (por si la hoja se creó con una versión anterior)
   sh.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS])
     .setFontWeight('bold').setBackground('#000080').setFontColor('#ffffff');
@@ -56,8 +57,8 @@ function setup() {
   sh.setFrozenRows(1);
   sh.setColumnWidth(1, 150);
   sh.setColumnWidths(2, 2, 170);
-  sh.setColumnWidths(4, 2, 300);
-  sh.setColumnWidth(6, 200);
+  sh.setColumnWidth(4, 300);
+  sh.setColumnWidth(5, 200);
   sh.getRange('A:A').setNumberFormat('dd/MM/yyyy HH:mm');
 
   // Pestaña Resumen con fórmulas (se actualiza sola)
@@ -65,21 +66,14 @@ function setup() {
   if (!r) r = ss.insertSheet('Resumen', 0);
   r.clear();
   const R = SHEET_NAME;
-  r.getRange('A1:B6').setValues([
+  r.getRange('A1:B4').setValues([
     ['Resumen', ''],
     ['Confirmados (vienen)', `=COUNTIF(${R}!C2:C,"Sí")`],
     ['No vienen', `=COUNTIF(${R}!C2:C,"No")`],
     ['Total de respuestas', `=COUNTA(${R}!B2:B)`],
-    ['Con restricción alimentaria', `=COUNTIFS(${R}!C2:C,"Sí",${R}!D2:D,"<>Ninguna",${R}!D2:D,"<>")`],
-    ['', ''],
   ]);
-  r.getRange('A8').setValue('Restricciones de los que vienen');
-  r.getRange('A9').setFormula(
-    `=IFERROR(FILTER({${R}!B2:B,${R}!D2:D},${R}!C2:C="Sí",${R}!D2:D<>"Ninguna",${R}!D2:D<>""),"Sin restricciones por ahora")`
-  );
   r.getRange('A1').setFontSize(14).setFontWeight('bold');
-  r.getRange('A2:A5').setFontWeight('bold');
-  r.getRange('A8').setFontWeight('bold');
+  r.getRange('A2:A4').setFontWeight('bold');
   r.setColumnWidth(1, 260);
   r.setColumnWidth(2, 300);
 

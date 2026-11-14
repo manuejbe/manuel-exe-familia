@@ -231,23 +231,6 @@ legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
         </fieldset>
 
 
-        <fieldset id="fs-food">
-          <legend>Restricciones alimentarias del grupo</legend>
-          <div class="grid2">
-            <label class="chk"><input type="checkbox" name="rest" value="Ninguna" checked> Ninguna</label>
-            <label class="chk"><input type="checkbox" name="rest" value="Vegetariano/a"> Vegetariano/a</label>
-            <label class="chk"><input type="checkbox" name="rest" value="Vegano/a"> Vegano/a</label>
-            <label class="chk"><input type="checkbox" name="rest" value="Celíaco/a (sin TACC)"> Celíaco/a</label>
-            <label class="chk"><input type="checkbox" name="rest" value="Kosher"> Kosher</label>
-            <label class="chk"><input type="checkbox" name="rest" value="Sin lactosa"> Sin lactosa</label>
-            <label class="chk"><input type="checkbox" name="rest" value="Alergia"> Alergia</label>
-            <label class="chk"><input type="checkbox" name="rest" value="Otra"> Otra</label>
-          </div>
-          <div id="food-extra" class="hidden">
-            <label class="lbl" for="f-food">¿Cuál? Contanos</label>
-            <input type="text" id="f-food" maxlength="200" placeholder="Ej: alergia al maní">
-          </div>
-        </fieldset>
 
         <label class="lbl" for="f-msg">Mensaje para Manuel <span style="color:#404040">(opcional)</span></label>
         <textarea id="f-msg" maxlength="500" placeholder="Un consejo, un deseo o la receta que voy a extrañar."></textarea>
@@ -305,7 +288,6 @@ legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
           <div><small>ASIENTO</small><b>Libre</b></div>
           <div><small>CLASE</small><b>FAMILIA</b></div>
           <div><small>EQUIPAJE</small><b>Abrazos</b></div>
-          <div class="full"><small>MENÚ ESPECIAL</small><b id="pass-food">—</b></div>
         </div>
         <div class="perf"></div>
         <div class="gate">
@@ -618,31 +600,12 @@ $("#btn-install-next").onclick=()=>{
 function updateFirma(){ const v=$("#f-nombre").value.trim(); $("#firma").textContent = v || " "; }
 $("#f-nombre").addEventListener("input", updateFirma);
 
-// restricciones: "Ninguna" excluye al resto
-$$("input[name=rest]").forEach(c=>c.addEventListener("change",()=>{
-  if(c.value==="Ninguna" && c.checked) $$("input[name=rest]").forEach(o=>{ if(o!==c) o.checked=false; });
-  else if(c.checked) $("input[name=rest][value=Ninguna]").checked=false;
-  if(!$$("input[name=rest]").some(o=>o.checked)) $("input[name=rest][value=Ninguna]").checked=true;
-  const needs = $$("input[name=rest]").some(o=>o.checked && (o.value==="Otra"||o.value==="Alergia"));
-  $("#food-extra").classList.toggle("hidden", !needs);
-}));
-// si no viene, ocultamos comida
-$$("input[name=viene]").forEach(r=>r.addEventListener("change",()=>{
-  const no = r.value==="No" && r.checked;
-  $("#fs-food").classList.toggle("hidden", no);
-}));
-
 
 function getData(){
   const viene = ($$("input[name=viene]").find(r=>r.checked)||{}).value || "";
-  let rest = $$("input[name=rest]").filter(c=>c.checked).map(c=>c.value);
-  const extra = $("#f-food").value.trim();
-  let restStr = rest.join(", ");
-  if(extra && !$("#food-extra").classList.contains("hidden")) restStr += " — " + extra;
   return {
     nombre: $("#f-nombre").value.trim(),
     viene,
-    restriccion: viene==="No" ? "" : restStr,
     mensaje: $("#f-msg").value.trim(),
   };
 }
@@ -654,18 +617,15 @@ $("#rsvp").addEventListener("submit",e=>{
     shake($("#w-form")); toast("Campo obligatorio","Necesitamos tu nombre. El sistema no acepta invitados anónimos."); $("#f-nombre").focus(); return;
   }
   if(!d.viene){ shake($("#w-form")); toast("Campo obligatorio","Falta decir si venís. (Pista: sí.)"); return; }
-  if(d.viene==="Sí" && $$("input[name=rest]").some(o=>o.checked && (o.value==="Otra"||o.value==="Alergia")) && !$("#f-food").value.trim()){
-    shake($("#w-form")); toast("Falta un dato","Contanos cuál es la restricción o alergia."); $("#f-food").focus(); return;
-  }
   if(d.viene==="No"){ openWin("w-confirm-no"); sndError(); return; }
   send(d);
 });
 $("#btn-no-change").onclick=()=>{
   closeWin("w-confirm-no");
   $("input[name=viene][value='Sí']").checked=true;
-  $("#fs-food").classList.remove("hidden");
   current="w-form"; sndTada();
-  toast("Excelente decisión","Sabía que ibas a recapacitar. Completá lo de la comida y firmá.");
+  toast("Excelente decisión","Sabía que ibas a recapacitar.");
+  send(getData());
 };
 $("#btn-no-ok").onclick=()=>{ closeWin("w-confirm-no"); send(getData()); };
 
@@ -708,8 +668,6 @@ async function send(d){
    ================================================================= */
 function fillPass(d){
   $("#pass-name").textContent = d.nombre.toUpperCase();
-  const food = (d.restriccion||"").replace(/^Ninguna$/,"");
-  $("#pass-food").textContent = food ? food : "Estándar (comemos de todo)";
   $("#pass-addr").textContent = CONFIG.DIRECCION;
   const maps = CONFIG.MAPS_URL || ("https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(CONFIG.DIRECCION));
   $("#btn-maps").href = maps;
