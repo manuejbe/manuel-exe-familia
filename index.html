@@ -20,12 +20,18 @@ html,body{margin:0;height:100%;overflow:hidden;background:var(--teal);font-famil
 button,input,textarea,select{font-family:var(--font);font-size:14px}
 
 /* ---------- BOOT ---------- */
-#boot{position:fixed;inset:0;background:#000;color:#c0c0c0;font-family:"Courier New",monospace;font-size:13px;padding:18px;z-index:100;line-height:1.5;white-space:pre-wrap;cursor:pointer}
-#boot .ok{color:#55ff55}
-#boot .warn{color:#ffff55}
+#boot{position:fixed;inset:0;background:#000;color:#fff;font-family:"Courier New",Courier,monospace;font-size:clamp(17px,4.6vw,22px);font-weight:bold;padding:22px 18px 70px;z-index:100;line-height:1.55;cursor:pointer;overflow-y:auto}
+#boot .bl{display:flex;align-items:baseline;gap:6px;margin-bottom:4px}
+#boot .bl .lab{flex:0 1 auto}
+#boot .bl .dots{flex:1 1 auto;min-width:12px;border-bottom:2px dotted #9a9a9a;transform:translateY(-5px)}
+#boot .bl .st{flex:0 0 auto}
+#boot .gap{height:.8em}
+#boot .head{color:#9fd7ff}
+#boot .ok{color:#5cff5c}
+#boot .warn{color:#ffe14a}
 #boot .blink{animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-#boot .skip{position:absolute;bottom:16px;right:18px;color:#808080;font-size:12px}
+#boot .skip{position:fixed;bottom:18px;right:18px;color:#e0e0e0;font-size:16px;font-weight:bold;border:2px solid #e0e0e0;padding:6px 12px;border-radius:4px}
 
 /* ---------- DESKTOP ---------- */
 #desktop{position:fixed;inset:0 0 38px 0;overflow:hidden}
@@ -156,7 +162,7 @@ legend{position:absolute;top:-9px;left:8px;background:var(--gray);padding:0 4px}
 <body>
 
 <!-- ======================= BOOT ======================= -->
-<div id="boot" role="button" aria-label="Tocá para continuar"><span id="boot-text"></span><span class="blink">_</span><div class="skip">tocá para saltear ›</div></div>
+<div id="boot" role="button" aria-label="Tocá para continuar"><div id="boot-text"></div><span class="blink">_</span><div class="skip">tocá para saltear ›</div></div>
 
 <!-- ======================= DESKTOP ======================= -->
 <div id="desktop">
@@ -468,12 +474,13 @@ $("#task-btn").addEventListener("click",()=>{ if(current && $("#"+current).class
 const BOOT = [
   ["Manuel BIOS v23.0 — (C) 2003-2026 Ejberowicz Corp.",""],
   ["",""],
-  ["Detectando título de ingeniero............ ","<span class='ok'>OK</span>"],
-  ["Detectando cumpleaños número 23........... ","<span class='ok'>OK</span>"],
-  ["Detectando pasaje a ISR................... ","<span class='ok'>OK</span>"],
-  ["Detectando familia........................ ","<span class='ok'>COMPLETA</span>"],
-  ["Grupo de WhatsApp familiar................ ","<span class='warn'>347 SIN LEER</span>"],
-  ["Detectando ganas de despedirse............ ","<span class='warn'>MUCHAS</span>"],
+  ["Detectando componentes:",""],
+  ["Título de ingeniero............ ","<span class='ok'>OK</span>"],
+  ["Cumpleaños número 23........... ","<span class='ok'>OK</span>"],
+  ["Pasaje a ISR................... ","<span class='ok'>OK</span>"],
+  ["Familia........................ ","<span class='ok'>COMPLETA</span>"],
+  ["WhatsApp familiar................ ","<span class='warn'>347 SIN LEER</span>"],
+  ["Ganas de despedirse............ ","<span class='warn'>MUCHAS</span>"],
   ["",""],
   ["Iniciando MANUEL.EXE...",""],
 ];
@@ -483,7 +490,13 @@ function runBoot(){
   (function next(){
     if(booted) return;
     if(i>=BOOT.length){ setTimeout(endBoot,2600); return; }
-    out.innerHTML += BOOT[i][0] + BOOT[i][1] + "\n"; i++;
+    const [lab, st] = BOOT[i];
+    const clean = lab.replace(/[.\s]+$/, "");
+    let html;
+    if(!lab) html = '<div class="gap"></div>';
+    else if(st) html = '<div class="bl"><span class="lab">'+clean+'</span><span class="dots"></span><span class="st">'+st+'</span></div>';
+    else html = '<div class="'+(i===0?"head":"")+'">'+lab+'</div>';
+    out.insertAdjacentHTML("beforeend", html); i++;
     setTimeout(next, i<3?750:1150);
   })();
 }
